@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Password Health & Security Vault</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            50: '#f0fdf4',
+                            500: '#10b981',
+                            600: '#059669',
+                            900: '#064e3b',
+                            950: '#022c22'
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 1.5s infinite',
+                        'spin-slow': 'spin 3s linear infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .bg-wallpaper {
+            transition: background-image 1s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-950 relative overflow-x-hidden">
+
+    <div id="bgLayer" class="fixed inset-0 bg-wallpaper z-0 opacity-50 pointer-events-none transition-all duration-1000 scale-105" style="background-image: url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1920&auto=format&fit=crop');"></div>
+    <div class="fixed inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/70 to-slate-950/95 z-0 pointer-events-none"></div>
+
+    <div id="app" class="relative z-10 flex-1 flex flex-col">
+        
+        <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-30 px-4 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-slate-950">
+                    <i data-lucide="shield-check" class="w-6 h-6 stroke-[2.5]"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-extrabold text-white leading-tight flex items-center gap-2">
+                        <span id="t-appTitle">Password Health & Vault</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Enterprise v6.3</span>
+                    </h1>
+                    <p id="t-appDesc" class="text-xs text-slate-300 hidden sm:block">Lokal Kriptografik Tahlil va Sokin Ombor</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div class="relative flex items-center bg-slate-950/90 border border-emerald-500/30 rounded-xl px-2.5 py-1.5 shadow-inner">
+                    <i data-lucide="languages" class="w-4 h-4 text-emerald-400 mr-2 shrink-0"></i>
+                    <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent text-xs font-semibold text-slate-200 focus:outline-none cursor-pointer pr-1">
+                        <option value="uz">🇺🇿 O'zbekcha (Lotin)</option>
+                        <option value="uz_cyrl">🇺🇿 Ўзбекча (Кирилл)</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="tr">🇹🇷 Türkçe</option>
+                    </select>
+                </div>
+
+                <button onclick="changeWallpaper()" title="Fon rasmi" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition border border-slate-700/60">
+                    <i data-lucide="image" class="w-4 h-4"></i>
+                </button>
+
+                <button id="soundBtn" onclick="toggleAudio()" title="Musiqani yoqish/o'chirish" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-400 transition border border-slate-700/60">
+                    <i data-lucide="music" class="w-4 h-4"></i>
+                </button>
+
+                <button onclick="exportData()" title="Eksport" class="p-2 sm:px-3 sm:py-2 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition border border-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
+                    <span class="hidden md:inline" id="t-export">Eksport</span>
+                </button>
+                <button onclick="document.getElementById('importFile').click()" title="Import" class="p-2 sm:px-3 sm:py-2 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition border border-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="upload" class="w-4 h-4 text-cyan-400"></i>
+                    <span class="hidden md:inline" id="t-import">Import</span>
+                </button>
+                <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+
+                <button onclick="openAddModal()" class="px-3.5 py-2 text-xs sm:text-sm font-extrabold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 transition flex items-center gap-2 shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="plus" class="w-4 h-4 stroke-[3]"></i>
+                    <span id="t-addPassword">Yangi Parol</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+            <section class="bg-slate-900/80 border border-slate-700/60 rounded-3xl p-6 lg:p-8 shadow-2xl backdrop-blur-xl space-y-6 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-700/60">
+                    <div>
+                        <h2 id="t-liveTesterTitle" class="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2">
+                            <i data-lucide="cpu" class="w-6 h-6 text-emerald-400"></i>
+                            Kiber-Xavfsizlik Tahlil Tizimi
+                        </h2>
+                        <p id="t-liveTesterSub" class="text-xs sm:text-sm text-slate-300 mt-1">Parolingizni kiritib, 10-15 soniyalik musiqiy tahlilni boshlang</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 text-xs font-semibold self-start md:self-auto shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                        <span id="t-privacyBadge">k-Anonymity (Serverga yuborilmaydi)</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="relative">
+                        <input type="password" id="mainPassInput" oninput="resetAnalysisState()" placeholder="Tekshiriladigan parolni kiriting..." class="w-full bg-slate-950/80 border-2 border-slate-700 focus:border-emerald-500 rounded-2xl px-5 py-4 text-base sm:text-lg text-white font-mono tracking-wide placeholder-slate-500 focus:outline-none transition-all shadow-inner pr-28">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                            <button onclick="toggleMainPassVisibility()" class="p-2.5 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition" title="Ko'rsatish/Yashirish">
+                                <i id="mainPassEye" data-lucide="eye" class="w-5 h-5"></i>
+                            </button>
+                            <button onclick="generateAndSetMainPass()" class="p-2.5 text-emerald-400 hover:text-emerald-300 rounded-xl hover:bg-slate-800 transition" title="Random Parol Yaratish">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button onclick="startFullSecurityScan()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold text-sm sm:text-base tracking-wide shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all transform active:scale-[0.99] flex items-center justify-center gap-3">
+                        <i data-lucide="play-circle" class="w-6 h-6 stroke-[2.5]"></i>
+                        <span id="t-runBtnText">Tahlilni Boshlash</span>
+                    </button>
+                </div>
+
+                <!-- Live Results -->
+                <div id="resultsContainer" class="hidden space-y-6 pt-4 border-t border-slate-700/60">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-slate-950/80 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between">
+                            <span id="t-cardScoreLabel" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Xavfsizlik Bali</span>
+                            <div class="my-2 flex items-baseline gap-2">
+                                <span id="resScoreVal" class="text-3xl font-extrabold text-emerald-400">0%</span>
+                                <span id="resScoreText" class="text-xs font-semibold text-slate-300">--</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div id="resScoreBar" class="h-full bg-emerald-500 transition-all duration-700" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950/80 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between">
+                            <span id="t-cardCrackLabel" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Buzish Vaqti (Superkompyuter)</span>
+                            <div class="my-2">
+                                <span id="resCrackTime" class="text-2xl sm:text-3xl font-extrabold text-cyan-400">Instant</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500">100 G/Hash tezligida</p>
+                        </div>
+
+                        <div class="bg-slate-950/80 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between">
+                            <span id="t-cardEntropyLabel" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Entropiya Darajasi</span>
+                            <div class="my-2">
+                                <span id="resEntropy" class="text-2xl sm:text-3xl font-extrabold text-purple-400">0 bits</span>
+                            </div>
+                            <p id="resEntropyDesc" class="text-[11px] text-slate-500">Kriptografik murakkablik</p>
+                        </div>
+
+                        <div class="bg-slate-950/80 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between">
+                            <span id="t-cardBreachLabel" class="text-xs font-bold text-slate-400 uppercase tracking-wider">O'g'irlangan Parollar Bazasi</span>
+                            <div class="my-2 flex items-center gap-2">
+                                <i id="resBreachIcon" data-lucide="shield-check" class="w-6 h-6 text-emerald-400"></i>
+                                <span id="resBreachText" class="text-sm font-bold text-emerald-400">Tekshirilmoqda...</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500">Real SHA-1 HIBP tekshiruvi</p>
+                        </div>
+                    </div>
+
+                    <!-- Criteria Breakdown -->
+                    <div class="space-y-4">
+                        <h3 id="t-criteriaHeader" class="text-base font-extrabold text-white flex items-center gap-2">
+                            <i data-lucide="list-checks" class="w-5 h-5 text-emerald-400"></i>
+                            Parol Xavfsizligi Mezonlari
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="criteriaGrid">
+                            <div id="critLengthCard" class="bg-slate-950/90 border border-slate-700 rounded-2xl p-4 space-y-2 border-l-4 border-l-slate-600">
+                                <div class="flex items-center justify-between">
+                                    <span id="t-critLength" class="text-xs font-bold text-slate-300">1. Uzunlik Mezoni</span>
+                                    <i id="critLengthIcon" data-lucide="circle-slash" class="w-4 h-4 text-slate-500"></i>
+                                </div>
+                                <p id="critLengthDet" class="text-xs text-slate-400 leading-relaxed">Tahlil o'tkazilmadi.</p>
+                            </div>
+
+                            <div id="critUpperCard" class="bg-slate-950/90 border border-slate-700 rounded-2xl p-4 space-y-2 border-l-4 border-l-slate-600">
+                                <div class="flex items-center justify-between">
+                                    <span id="t-critUpper" class="text-xs font-bold text-slate-300">2. Katta Harflar (A-Z)</span>
+                                    <i id="critUpperIcon" data-lucide="circle-slash" class="w-4 h-4 text-slate-500"></i>
+                                </div>
+                                <p id="critUpperDet" class="text-xs text-slate-400 leading-relaxed">Tahlil o'tkazilmadi.</p>
+                            </div>
+
+                            <div id="critLowerCard" class="bg-slate-950/90 border border-slate-700 rounded-2xl p-4 space-y-2 border-l-4 border-l-slate-600">
+                                <div class="flex items-center justify-between">
+                                    <span id="t-critLower" class="text-xs font-bold text-slate-300">3. Kichik Harflar (a-z)</span>
+                                    <i id="critLowerIcon" data-lucide="circle-slash" class="w-4 h-4 text-slate-500"></i>
+                                </div>
+                                <p id="critLowerDet" class="text-xs text-slate-400 leading-relaxed">Tahlil o'tkazilmadi.</p>
+                            </div>
+
+                            <div id="critNumCard" class="bg-slate-950/90 border border-slate-700 rounded-2xl p-4 space-y-2 border-l-4 border-l-slate-600">
+                                <div class="flex items-center justify-between">
+                                    <span id="t-critNum" class="text-xs font-bold text-slate-300">4. Raqamlar (0-9)</span>
+                                    <i id="critNumIcon" data-lucide="circle-slash" class="w-4 h-4 text-slate-500"></i>
+                                </div>
+                                <p id="critNumDet" class="text-xs text-slate-400 leading-relaxed">Tahlil o'tkazilmadi.</p>
+                            </div>
+
+                            <div id="critSymCard" class="bg-slate-950/90 border border-slate-700 rounded-2xl p-4 space-y-2 border-l-4 border-l-slate-600">
+                                <div class="flex items-center justify-between">
+                                    <span id="t-critSym" class="text-xs font-bold text-slate-300">5. Maxsus Belgilar (!@#$)</span>
+                                    <i id="critSymIcon" data-lucide="circle-slash" class="w-4 h-4 text-slate-500"></i>
+                                </div>
+                                <p id="critSymDet" class="text-xs text-slate-400 leading-relaxed">Tahlil o'tkazilmadi.</p>
+                            </div>
+
+                            <div id="critPatCard" class="bg-slate-950/90 border border-slate-700 rounded-2xl p-4 space-y-2 border-l-4 border-l-slate-600">
+                                <div class="flex items-center justify-between">
+                                    <span id="t-critPat" class="text-xs font-bold text-slate-300">6. Naqsh va Ketma-ketlik</span>
+                                    <i id="critPatIcon" data-lucide="circle-slash" class="w-4 h-4 text-slate-500"></i>
+                                </div>
+                                <p id="critPatDet" class="text-xs text-slate-400 leading-relaxed">Tahlil o'tkazilmadi.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Password Vault & Storage Section -->
+            <section class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
+                            <span id="t-vStatScore">Umumiy Vault Bali</span>
+                            <i data-lucide="shield" class="w-4 h-4 text-emerald-400"></i>
+                        </div>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span id="vaultAvgScore" class="text-3xl font-black text-white">0%</span>
+                            <span id="vaultScoreLabel" class="text-xs text-slate-400">O'rtacha</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
+                            <span id="t-vStatTotal">Jami Saqlangan</span>
+                            <i data-lucide="database" class="w-4 h-4 text-blue-400"></i>
+                        </div>
+                        <div class="mt-2">
+                            <span id="vaultTotalCount" class="text-3xl font-black text-white">0</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
+                            <span id="t-vStatWeak">Zaif Parollar</span>
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+                        </div>
+                        <div class="mt-2">
+                            <span id="vaultWeakCount" class="text-3xl font-black text-amber-400">0</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+                        <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
+                            <span id="t-vStatOld">Eski Parollar (90+ Kun)</span>
+                            <i data-lucide="clock" class="w-4 h-4 text-purple-400"></i>
+                        </div>
+                        <div class="mt-2">
+                            <span id="vaultOldCount" class="text-3xl font-black text-purple-400">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    <div class="relative w-full sm:w-72">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="vaultSearch" oninput="renderVault()" placeholder="Qidirish..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <select id="vaultCategoryFilter" onchange="renderVault()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-300 focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">Barcha Toifalar</option>
+                            <option value="Ijtimoiy">Ijtimoiy tarmoqlar</option>
+                            <option value="Ish/O'qish">Ish / O'qish</option>
+                            <option value="Moliya">Moliya / Bank</option>
+                            <option value="Boshqa">Boshqa</option>
+                        </select>
+
+                        <select id="vaultStatusFilter" onchange="renderVault()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-300 focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">Barcha Holatlar</option>
+                            <option value="WEAK">Zaif parollar</option>
+                            <option value="OLD">Eski parollar</option>
+                            <option value="STRONG">Kuchli parollar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="vaultList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Fullscreen Dark Overlay for Scan -->
+    <div id="scanOverlay" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6 hidden">
+        <div class="max-w-md w-full text-center space-y-8 relative z-10">
+            <div class="relative w-32 h-32 mx-auto flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full border-[6px] border-emerald-500/20 border-t-emerald-400 animate-spin"></div>
+                <div class="absolute inset-2 rounded-full border-[6px] border-cyan-500/20 border-b-cyan-400 animate-spin-slow"></div>
+                <div class="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                    <i data-lucide="shield-alert" class="w-10 h-10 text-emerald-400 animate-pulse"></i>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h3 id="t-scanningTitle" class="text-xl sm:text-2xl font-black text-white tracking-widest drop-shadow-md">
+                    XAVFSIZLIK TAHLILI
+                </h3>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-slate-900/90 border border-emerald-500/40 flex items-center justify-center gap-4 shadow-2xl">
+                <i data-lucide="music" class="w-6 h-6 text-emerald-400 animate-pulse"></i>
+                <p id="scanStepText" class="text-sm sm:text-base text-emerald-300 font-mono font-bold tracking-wide">Musiqiy tahlil boshlanmoqda...</p>
+            </div>
+
+            <div class="space-y-2">
+                <div class="w-full bg-slate-950 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700 shadow-inner">
+                    <div id="scanProgressBar" class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full transition-all duration-300 relative">
+                        <div class="absolute top-0 left-0 bottom-0 w-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between text-sm text-emerald-400 font-mono font-bold">
+                    <span id="scanPercent">0%</span>
+                    <span id="scanTimeLeft">~ 15s</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="passwordModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute right-5 top-5 text-slate-400 hover:text-white transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 id="modalTitle" class="text-lg font-extrabold text-white flex items-center gap-2">
+                <i data-lucide="key" class="w-5 h-5 text-emerald-400"></i>
+                Yangi Parol Qo'shish
+            </h3>
+            <form id="passForm" onsubmit="saveVaultPassword(event)" class="space-y-4">
+                <input type="hidden" id="editId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Xizmat Nomi</label>
+                    <input type="text" id="serviceInput" required placeholder="Masalan: Google, Telegram" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Login / Email</label>
+                    <input type="text" id="usernameInput" required placeholder="user@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-bold text-slate-400">Parol</label>
+                        <button type="button" onclick="fillModalWithGenerated()" class="text-[11px] font-bold text-emerald-400 hover:underline">Random parol</button>
+                    </div>
+                    <input type="password" id="passwordInput" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Toifa</label>
+                    <select id="categoryInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <option value="Ijtimoiy">Ijtimoiy tarmoqlar</option>
+                        <option value="Ish/O'qish">Ish / O'qish</option>
+                        <option value="Moliya">Moliya / Bank</option>
+                        <option value="Boshqa">Boshqa</option>
+                    </select>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">Bekor qilish</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
+            <div class="w-12 h-12 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 flex items-center justify-center mx-auto">
+                <i data-lucide="trash-2" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-extrabold text-white">Parolni o'chirishni tasdiqlang</h3>
+                <p class="text-xs text-slate-400 mt-1"><span id="deleteTargetName" class="text-white font-bold"></span> xizmati parolini o'chirmoqchimisiz?</p>
+            </div>
+            <div class="flex justify-center gap-3 pt-2">
+                <button onclick="closeDeleteModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">Bekor qilish</button>
+                <button id="confirmDeleteBtn" class="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-400 text-white text-xs font-bold">O'chirish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-emerald-500/40 text-slate-100 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 z-50 transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+        <i id="toastIcon" data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+        <span id="toastMsg" class="text-xs font-bold">Bajarildi</span>
+    </div>
+
+    <script>
+        const SCAN_TEXTS = {
+            uz: [
+                "Kriptografik entropiya hisoblanmoqda...",
+                "Xavfsizlik protokollari tekshirilmoqda...",
+                "O'g'irlangan parollar bazasi skanerlanmoqda...",
+                "Naqsh va zaif nuqtalar aniqlanmoqda...",
+                "Tahlil muvaffaqiyatli yakunlandi."
+            ],
+            uz_cyrl: [
+                "Криптографик энтропия ҳисобланмоқда...",
+                "Хавфсизлик протоколлари текширилмоқда...",
+                "Ўғирланган пароллар базаси сканерланмоқда...",
+                "Нақш ва заиф нуқталар аниқланмоқда...",
+                "Таҳлил муваффақиятли якунланди."
+            ],
+            en: [
+                "Calculating cryptographic entropy...",
+                "Verifying security protocols...",
+                "Scanning breached databases...",
+                "Analyzing patterns and vulnerabilities...",
+                "Security scan completed successfully."
+            ],
+            ru: [
+                "Вычисление криптографической энтропии...",
+                "Проверка протоколов безопасности...",
+                "Сканирование баз утечек паролей...",
+                "Анализ шаблонов и уязвимостей...",
+                "Анализ безопасности успешно завершён."
+            ],
+            tr: [
+                "Kriptografik entropi hesaplanıyor...",
+                "Güvenlik protokolleri doğrulanıyor...",
+                "Sızdırılan veri tabanları taranıyor...",
+                "Desenler ve zafiyetler inceleniyor...",
+                "Güvenlik taraması başarıyla tamamlandı."
+            ]
+        };
+
+        const I18N = {
+            uz: {
+                appTitle: "Password Health & Vault",
+                appDesc: "Sokin musiqiy tahlil va xavfsiz ombor",
+                export: "Eksport",
+                import: "Import",
+                addPassword: "Yangi Parol",
+                liveTitle: "Kiber-Xavfsizlik Tahlil Tizimi",
+                liveSub: "Parolingizni kiritib, 10-15 soniyalik musiqiy tahlilni boshlang",
+                privacyBadge: "k-Anonymity (Serverga yuborilmaydi)",
+                runBtn: "Tahlilni Boshlash",
+                scanningTitle: "XAVFSIZLIK TAHLILI",
+                scoreLabel: "Xavfsizlik Bali",
+                crackLabel: "Buzish Vaqti",
+                entropyLabel: "Entropiya Darajasi",
+                breachLabel: "O'g'irlangan Parollar",
+                criteriaHeader: "Parol Xavfsizligi Mezonlari",
+                vStatScore: "Umumiy Vault Bali",
+                vStatTotal: "Jami Saqlangan",
+                vStatWeak: "Zaif Parollar",
+                vStatOld: "Eski Parollar"
+            },
+            uz_cyrl: {
+                appTitle: "Пароллар Саломатлиги ва Омбор",
+                appDesc: "Сокин мусиқий таҳлил ва хавфсиз омбор",
+                export: "Экспорт",
+                import: "Импорт",
+                addPassword: "Янги Парол",
+                liveTitle: "Кибер-Хавфсизлик Таҳлил Тизими",
+                liveSub: "Паролингизни киритиб, 10-15 сониялик таҳлилни бошланг",
+                privacyBadge: "k-Anonymity (Серверга юборилмайди)",
+                runBtn: "Таҳлилни Бошлаш",
+                scanningTitle: "ХАВФСИЗЛИК TAҲЛИЛИ",
+                scoreLabel: "Хавфсизлик Бали",
+                crackLabel: "Бузиш Вақти",
+                entropyLabel: "Энтропия Даражаси",
+                breachLabel: "Ўғирланган Пароллар",
+                criteriaHeader: "Парол Хавфсизлиги Мезонлари",
+                vStatScore: "Умумий Vault Бали",
+                vStatTotal: "Жами Сақланган",
+                vStatWeak: "Заиф Пароллар",
+                vStatOld: "Эски Пароллар"
+            },
+            en: {
+                appTitle: "Password Health & Vault",
+                appDesc: "Ambient musical analysis and secure vault",
+                export: "Export",
+                import: "Import",
+                addPassword: "New Password",
+                liveTitle: "Cyber Security Analysis System",
+                liveSub: "Enter your password for a deep 10-15s scan",
+                privacyBadge: "k-Anonymity (Zero knowledge)",
+                runBtn: "Start Security Scan",
+                scanningTitle: "SECURITY ANALYSIS",
+                scoreLabel: "Health Score",
+                crackLabel: "Crack Time",
+                entropyLabel: "Entropy Level",
+                breachLabel: "Breached Passwords",
+                criteriaHeader: "Password Security Criteria",
+                vStatScore: "Vault Score",
+                vStatTotal: "Total Saved",
+                vStatWeak: "Weak Passwords",
+                vStatOld: "Old Passwords"
+            },
+            ru: {
+                appTitle: "Анализ Паролей и Сейф",
+                appDesc: "Музыкальный анализ и защищенное хранилище",
+                export: "Экспорт",
+                import: "Импорт",
+                addPassword: "Новый Пароль",
+                liveTitle: "Система Кибер-Анализа Паролей",
+                liveSub: "Введите пароль для 10-15 секундного анализа",
+                privacyBadge: "k-Anonymity (Анонимная проверка)",
+                runBtn: "Запустить Анализ",
+                scanningTitle: "ИДЕТ СКАНИРОВАНИЕ",
+                scoreLabel: "Балл Безопасности",
+                crackLabel: "Время Взлома",
+                entropyLabel: "Энтропия",
+                breachLabel: "База Утечек",
+                criteriaHeader: "Критерии Безопасности",
+                vStatScore: "Балл Сейфа",
+                vStatTotal: "Сохранено",
+                vStatWeak: "Слабые",
+                vStatOld: "Старые"
+            },
+            tr: {
+                appTitle: "Parola Sağlığı ve Kasa",
+                appDesc: "Huzurlu müzikli analiz ve güvenli kasa",
+                export: "Dışa Aktar",
+                import: "İçe Aktar",
+                addPassword: "Yeni Parola",
+                liveTitle: "Siber Güvenlik Analiz Sistemi",
+                liveSub: "Parolanızı girin ve 10-15 saniyelik analizi başlatın",
+                privacyBadge: "k-Anonymity (Sunucuya gönderilmez)",
+                runBtn: "Güvenlik Taramasını Başlat",
+                scanningTitle: "GÜVENLİK ANALİZİ",
+                scoreLabel: "Sağlık Puanı",
+                crackLabel: "Kırma Süresi",
+                entropyLabel: "Entropi",
+                breachLabel: "Sızıntı Veritabanı",
+                criteriaHeader: "Parola Kriterleri",
+                vStatScore: "Kasa Puanı",
+                vStatTotal: "Toplam Kayıtlı",
+                vStatWeak: "Zayıf Parolalar",
+                vStatOld: "Eski Parolalar"
+            }
+        };
+
+        const WALLPAPERS = [
+            "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1920&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1920&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1920&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?q=80&w=1920&auto=format&fit=crop"
+        ];
+
+        let currentLang = 'uz';
+        let currentWallpaperIdx = 0;
+        let audioEnabled = true;
+        let scanMusic = null;
+
+        const VAULT_STORAGE_KEY = 'vault_data_v6_pro';
+        let vaultPasswords = [];
+        let deleteTargetId = null;
+
+        const initialSeed = [
+            { id: 'seed-1', service: 'Shaxsiy Kabinet', username: 'Eshimov Suxrob', password: btoa(encodeURIComponent('Suxrob_Cyber2026!')), category: 'Ish/O\'qish', updatedAt: new Date().toISOString() },
+            { id: 'seed-2', service: 'Telegram App', username: '+998901234567', password: btoa(encodeURIComponent('qwerty12345')), category: 'Ijtimoiy', updatedAt: new Date(Date.now() - 100 * 86400000).toISOString() }
+        ];
+
+        window.onload = function() {
+            loadVaultData();
+            lucide.createIcons();
+        };
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            if (!audioEnabled && scanMusic) {
+                scanMusic.pause();
+                scanMusic.currentTime = 0;
+            }
+            const btn = document.getElementById('soundBtn');
+            btn.className = `p-2 rounded-xl transition border border-slate-700/60 ${audioEnabled ? 'bg-slate-800/80 text-emerald-400' : 'bg-slate-900 text-slate-600'}`;
+            showToast(audioEnabled ? "Musiqa yoqildi" : "Musiqa o'chirildi", audioEnabled ? "music" : "volume-x");
+        }
+
+        function changeWallpaper() {
+            currentWallpaperIdx = (currentWallpaperIdx + 1) % WALLPAPERS.length;
+            document.getElementById('bgLayer').style.backgroundImage = `url('${WALLPAPERS[currentWallpaperIdx]}')`;
+        }
+
+        function changeLanguage(langKey) {
+            currentLang = langKey;
+            const dict = I18N[langKey] || I18N['uz'];
+            const setTxt = (id, key) => {
+                const el = document.getElementById(id);
+                if (el && dict[key]) el.innerText = dict[key];
+            };
+
+            setTxt('t-appTitle', 'appTitle');
+            setTxt('t-appDesc', 'appDesc');
+            setTxt('t-export', 'export');
+            setTxt('t-import', 'import');
+            setTxt('t-addPassword', 'addPassword');
+            setTxt('t-liveTesterTitle', 'liveTitle');
+            setTxt('t-liveTesterSub', 'liveSub');
+            setTxt('t-privacyBadge', 'privacyBadge');
+            setTxt('t-runBtnText', 'runBtn');
+            setTxt('t-scanningTitle', 'scanningTitle');
+            setTxt('t-cardScoreLabel', 'scoreLabel');
+            setTxt('t-cardCrackLabel', 'crackLabel');
+            setTxt('t-cardEntropyLabel', 'entropyLabel');
+            setTxt('t-cardBreachLabel', 'breachLabel');
+            setTxt('t-criteriaHeader', 'criteriaHeader');
+            setTxt('t-vStatScore', 'vStatScore');
+            setTxt('t-vStatTotal', 'vStatTotal');
+            setTxt('t-vStatWeak', 'vStatWeak');
+            setTxt('t-vStatOld', 'vStatOld');
+
+            renderVault();
+        }
+
+        function resetAnalysisState() {
+            document.getElementById('resultsContainer').classList.add('hidden');
+        }
+
+        function toggleMainPassVisibility() {
+            const input = document.getElementById('mainPassInput');
+            const eye = document.getElementById('mainPassEye');
+            if (input.type === 'password') {
+                input.type = 'text';
+                eye.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                eye.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        // Kriptografik jihatdan 100% xavfsiz, internetsiz (lokal) parol generatori
+        function getSecureRandomPassword(length = 16) {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=";
+            let pass = "";
+            const randomValues = new Uint32Array(length);
+            window.crypto.getRandomValues(randomValues);
+            for (let i = 0; i < length; i++) {
+                pass += chars[randomValues[i] % chars.length];
+            }
+            return pass;
+        }
+
+        function generateAndSetMainPass() {
+            document.getElementById('mainPassInput').value = getSecureRandomPassword(16);
+            changeWallpaper();
+            showToast("Kriptografik xavfsiz parol yaratildi", "sparkles");
+        }
+
+        async function sha1(str) {
+            const buffer = new TextEncoder("utf-8").encode(str);
+            const digest = await crypto.subtle.digest("SHA-1", buffer);
+            return Array.from(new Uint8Array(digest)).map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+        }
+
+        async function checkPwned(password) {
+            try {
+                const hash = await sha1(password);
+                const prefix = hash.slice(0, 5);
+                const suffix = hash.slice(5);
+                const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+                if (!response.ok) return -1;
+                const text = await response.text();
+                const lines = text.split('\n');
+                for (let line of lines) {
+                    if (line.trim().startsWith(suffix)) {
+                        return parseInt(line.split(':')[1]);
+                    }
+                }
+                return 0;
+            } catch (e) {
+                return -1;
+            }
+        }
+
+        async function startFullSecurityScan() {
+            const pass = document.getElementById('mainPassInput').value;
+            if (!pass) {
+                showToast("Iltimos, avval parol kiriting!", "alert-circle");
+                return;
+            }
+
+            // Aniq 10-15 soniya davom etadigan vaqt oralig'i
+            const duration = Math.floor(Math.random() * 5000) + 10000;
+            
+            const overlay = document.getElementById('scanOverlay');
+            const bar = document.getElementById('scanProgressBar');
+            const pct = document.getElementById('scanPercent');
+            const stepText = document.getElementById('scanStepText');
+            const timeLeft = document.getElementById('scanTimeLeft');
+
+            overlay.classList.remove('hidden');
+            bar.style.width = '0%';
+            pct.innerText = '0%';
+
+            // Musiqa fayli to'g'ridan-to'g'ri ishga tushadi
+            if (audioEnabled) {
+                try {
+                    scanMusic = new Audio('Sting - Shape Of My Heart Instrumental.mp3'); 
+                    scanMusic.volume = 1.0; 
+                    scanMusic.play().catch(e => {
+                        scanMusic = new Audio('file:///C:/Users/User/OneDrive/Desktop/Sting - Shape Of My Heart Instrumental.mp3');
+                        scanMusic.volume = 1.0;
+                        scanMusic.play().catch(err => console.log("Audio ijro xatosi:", err));
+                    });
+                } catch(e) {}
+            }
+
+            let pwnedCountPromise = checkPwned(pass);
+            const texts = SCAN_TEXTS[currentLang] || SCAN_TEXTS['uz'];
+
+            let elapsed = 0;
+            const intervalTime = 50; 
+
+            const timer = setInterval(async () => {
+                elapsed += intervalTime;
+                const progress = Math.min(100, (elapsed / duration) * 100);
+
+                bar.style.width = progress + '%';
+                pct.innerText = Math.floor(progress) + '%';
+                timeLeft.innerText = `~${Math.ceil((duration - elapsed) / 1000)}s`;
+
+                if (progress < 25) stepText.innerText = texts[0];
+                else if (progress < 50) stepText.innerText = texts[1];
+                else if (progress < 75) stepText.innerText = texts[2];
+                else if (progress < 99) stepText.innerText = texts[3];
+                else stepText.innerText = texts[4];
+
+                // Tahlil 80% dan oshganda musiqani asta-sekin pasaytirish
+                if (progress > 80 && audioEnabled && scanMusic && scanMusic.volume > 0.2) {
+                    scanMusic.volume = Math.max(0.2, scanMusic.volume - 0.02);
+                }
+
+                if (elapsed >= duration) {
+                    clearInterval(timer);
+                    const pwnedCount = await pwnedCountPromise;
+                    
+                    // Yakunlanganini bildiruvchi qisqa tovush
+                    if (audioEnabled) {
+                        try {
+                            const successSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                            successSound.volume = 0.8;
+                            successSound.play();
+                        } catch(err) {
+                            console.log("Yakuniy tovush ijrosida xatolik:", err);
+                        }
+                    }
+
+                    // Musiqa to'liq pasayib o'chadi (fade-out)
+                    if (scanMusic) {
+                        let fadeOut = setInterval(() => {
+                            if (scanMusic.volume > 0.05) {
+                                scanMusic.volume -= 0.05;
+                            } else {
+                                scanMusic.pause();
+                                scanMusic.currentTime = 0;
+                                clearInterval(fadeOut);
+                            }
+                        }, 80);
+                    }
+                    
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        finishAnalysisAndRenderResults(pass, pwnedCount);
+                    }, 500); 
+                }
+            }, intervalTime);
+        }
+
+        function finishAnalysisAndRenderResults(pass, pwnedCount) {
+            document.getElementById('resultsContainer').classList.remove('hidden');
+
+            let score = 0;
+            let upperMatches = pass.match(/[A-Z]/g) || [];
+            let lowerMatches = pass.match(/[a-z]/g) || [];
+            let numMatches = pass.match(/[0-9]/g) || [];
+            let symMatches = pass.match(/[^A-Za-z0-9]/g) || [];
+
+            if (pass.length >= 8) score += 20;
+            if (pass.length >= 12) score += 20;
+            if (upperMatches.length > 0) score += 15;
+            if (lowerMatches.length > 0) score += 15;
+            if (numMatches.length > 0) score += 15;
+            if (symMatches.length > 0) score += 15;
+
+            const patterns = [/1234/, /qwerty/i, /(.)\1\1/];
+            let foundPatterns = [];
+            if (/1234/.test(pass)) foundPatterns.push("1234");
+            if (/qwerty/i.test(pass)) foundPatterns.push("qwerty");
+            if (/(.)\1\1/.test(pass)) foundPatterns.push("takroriy belgilar");
+            if (foundPatterns.length > 0) score = Math.max(10, score - 25);
+
+            if (pwnedCount > 0) score = Math.max(0, score - 45);
+
+            let poolSize = 0;
+            if (upperMatches.length > 0) poolSize += 26;
+            if (lowerMatches.length > 0) poolSize += 26;
+            if (numMatches.length > 0) poolSize += 10;
+            if (symMatches.length > 0) poolSize += 32;
+            if (poolSize === 0) poolSize = 26;
+
+            const entropy = Math.round(pass.length === 0 ? 0 : pass.length * Math.log2(poolSize));
+
+            document.getElementById('resScoreVal').innerText = score + '%';
+            document.getElementById('resScoreBar').style.width = score + '%';
+
+            const scoreTxt = document.getElementById('resScoreText');
+            if (score >= 80) { scoreTxt.innerText = "Juda Kuchli"; scoreTxt.className = "text-xs font-bold text-emerald-400"; }
+            else if (score >= 50) { scoreTxt.innerText = "O'rtacha"; scoreTxt.className = "text-xs font-bold text-amber-400"; }
+            else { scoreTxt.innerText = "Zaif / Xavfli"; scoreTxt.className = "text-xs font-bold text-red-400"; }
+
+            let crackTime = "Instant (Soniyalar)";
+            if (entropy > 80) crackTime = "Asrlar (Centuries)";
+            else if (entropy > 60) crackTime = "Yillar (Years)";
+            else if (entropy > 40) crackTime = "Oylar (Months)";
+            else if (entropy > 25) crackTime = "Soatlar (Hours)";
+            document.getElementById('resCrackTime').innerText = crackTime;
+            document.getElementById('resEntropy').innerText = entropy + " bits";
+
+            const breachText = document.getElementById('resBreachText');
+            const breachIcon = document.getElementById('resBreachIcon');
+            if (pwnedCount > 0) {
+                breachText.innerText = `Xavfli: Bazadan ${pwnedCount} marta sizgan!`;
+                breachText.className = "text-sm font-bold text-red-400";
+                breachIcon.className = "w-6 h-6 text-red-400";
+                breachIcon.setAttribute('data-lucide', 'alert-triangle');
+            } else if (pwnedCount === 0) {
+                breachText.innerText = "Xavfsiz (Topilmadi)";
+                breachText.className = "text-sm font-bold text-emerald-400";
+                breachIcon.className = "w-6 h-6 text-emerald-400";
+                breachIcon.setAttribute('data-lucide', 'shield-check');
+            } else {
+                breachText.innerText = "Tarmoq xatosi";
+                breachText.className = "text-sm font-bold text-amber-400";
+                breachIcon.className = "w-6 h-6 text-amber-400";
+                breachIcon.setAttribute('data-lucide', 'wifi-off');
+            }
+
+            const setCard = (cardId, iconId, detId, ok, title, detailMsg) => {
+                const card = document.getElementById(cardId);
+                const icon = document.getElementById(iconId);
+                const det = document.getElementById(detId);
+                if (ok) {
+                    card.className = "bg-slate-950/90 border border-emerald-500/30 rounded-2xl p-4 space-y-2 border-l-4 border-l-emerald-500";
+                    icon.setAttribute('data-lucide', 'check-circle-2');
+                    icon.className = "w-4 h-4 text-emerald-400";
+                } else {
+                    card.className = "bg-slate-950/90 border border-red-500/30 rounded-2xl p-4 space-y-2 border-l-4 border-l-red-500";
+                    icon.setAttribute('data-lucide', 'x-circle');
+                    icon.className = "w-4 h-4 text-red-400";
+                }
+                det.innerText = detailMsg;
+            };
+
+            setCard('critLengthCard', 'critLengthIcon', 'critLengthDet', pass.length >= 12, 'Length', `Uzunligi: ${pass.length} belgi. (Kamida 12 tavsiya etiladi).`);
+            setCard('critUpperCard', 'critUpperIcon', 'critUpperDet', upperMatches.length > 0, 'Upper', `Katta harflar: ${upperMatches.length} ta.`);
+            setCard('critLowerCard', 'critLowerIcon', 'critLowerDet', lowerMatches.length > 0, 'Lower', `Kichik harflar: ${lowerMatches.length} ta.`);
+            setCard('critNumCard', 'critNumIcon', 'critNumDet', numMatches.length > 0, 'Numbers', `Raqamlar: ${numMatches.length} ta.`);
+            setCard('critSymCard', 'critSymIcon', 'critSymDet', symMatches.length > 0, 'Symbols', `Maxsus belgilar: ${symMatches.length} ta.`);
+            setCard('critPatCard', 'critPatIcon', 'critPatDet', foundPatterns.length === 0, 'Patterns', foundPatterns.length === 0 ? "Xavfli naqshlar yo'q." : `Topildi: ${foundPatterns.join(', ')}.`);
+
+            lucide.createIcons();
+        }
+
+        function loadVaultData() {
+            try {
+                const stored = localStorage.getItem(VAULT_STORAGE_KEY);
+                if (stored) {
+                    vaultPasswords = JSON.parse(stored);
+                } else {
+                    vaultPasswords = [...initialSeed];
+                    saveVaultStorage();
+                }
+            } catch(e) {
+                vaultPasswords = [...initialSeed];
+            }
+            renderVault();
+        }
+
+        function saveVaultStorage() {
+            try {
+                localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(vaultPasswords));
+            } catch(e) {}
+        }
+
+        function isPasswordOld(isoDate) {
+            const diffDays = Math.floor((new Date() - new Date(isoDate)) / 86400000);
+            return diffDays >= 90;
+        }
+
+        function getDecodedPassword(encodedPass) {
+            try {
+                return decodeURIComponent(atob(encodedPass));
+            } catch(e) { return encodedPass; }
+        }
+
+        function renderVault() {
+            const listEl = document.getElementById('vaultList');
+            const search = document.getElementById('vaultSearch').value.toLowerCase();
+            const catFilter = document.getElementById('vaultCategoryFilter').value;
+            const statusFilter = document.getElementById('vaultStatusFilter').value;
+
+            const total = vaultPasswords.length;
+            document.getElementById('vaultTotalCount').innerText = total;
+
+            let weakCount = 0;
+            let oldCount = 0;
+            let totalScoreAcc = 0;
+
+            vaultPasswords.forEach(p => {
+                const realPass = getDecodedPassword(p.password);
+                let score = realPass.length >= 12 ? 80 : (realPass.length >= 8 ? 50 : 20);
+                totalScoreAcc += score;
+                if (score < 50) weakCount++;
+                if (isPasswordOld(p.updatedAt)) oldCount++;
+            });
+
+            const avg = total > 0 ? Math.round(totalScoreAcc / total) : 0;
+            document.getElementById('vaultAvgScore').innerText = avg + "%";
+            document.getElementById('vaultWeakCount').innerText = weakCount;
+            document.getElementById('vaultOldCount').innerText = oldCount;
+
+            const filtered = vaultPasswords.filter(p => {
+                const realPass = getDecodedPassword(p.password);
+                const matchSearch = p.service.toLowerCase().includes(search) || p.username.toLowerCase().includes(search);
+                const matchCat = catFilter === 'ALL' || p.category === catFilter;
+
+                let matchStatus = true;
+                const isWeak = realPass.length < 8;
+                const isOld = isPasswordOld(p.updatedAt);
+
+                if (statusFilter === 'WEAK') matchStatus = isWeak;
+                else if (statusFilter === 'OLD') matchStatus = isOld;
+                else if (statusFilter === 'STRONG') matchStatus = !isWeak;
+
+                return matchSearch && matchCat && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div class="col-span-full bg-slate-900/80 border border-slate-800 rounded-3xl p-8 text-center space-y-2">
+                        <i data-lucide="shield-off" class="w-10 h-10 text-slate-600 mx-auto"></i>
+                        <p class="text-xs text-slate-400 font-semibold">Omborda topilmadi</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(item => {
+                const realPass = getDecodedPassword(item.password);
+                const isOld = isPasswordOld(item.updatedAt);
+                return `
+                    <div class="bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-5 transition-all space-y-3 relative group">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-extrabold text-slate-200 text-sm border border-slate-700 uppercase shrink-0">
+                                    ${item.service.charAt(0)}
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="font-extrabold text-white text-sm truncate">${escapeHtml(item.service)}</h4>
+                                    <p class="text-xs text-slate-400 font-mono truncate">${escapeHtml(item.username)}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button onclick="openEditModal('${item.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Tahrirlash">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="confirmManualDelete('${item.id}', '${escapeHtml(item.service)}')" class="p-2 rounded-xl bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition" title="O'chirish">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <input type="password" readonly value="${escapeHtml(realPass)}" id="vPass-${item.id}" class="bg-transparent border-none w-full font-mono text-xs sm:text-sm text-slate-200 focus:outline-none">
+                            <button onclick="toggleVaultPassVisibility('vPass-${item.id}', this)" class="p-1 text-slate-400 hover:text-white transition" title="Ko'rish">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="copyToClipboard('${escapeHtml(realPass)}')" class="p-1 text-slate-400 hover:text-emerald-400 transition" title="Nusxalash">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-[10px]">
+                            <span class="px-2 py-0.5 rounded-md font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                                ${escapeHtml(item.category)}
+                            </span>
+                            ${isOld ? `
+                                <span class="text-purple-400 font-bold bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20 flex items-center gap-1">
+                                    <i data-lucide="clock" class="w-3 h-3"></i> Eski (90+ kun)
+                                </span>
+                            ` : `
+                                <span class="text-slate-500 font-medium">
+                                    ${new Date(item.updatedAt).toLocaleDateString('uz-UZ')}
+                                </span>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function toggleVaultPassVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                btn.innerHTML = `<i data-lucide="eye-off" class="w-4 h-4"></i>`;
+            } else {
+                input.type = "password";
+                btn.innerHTML = `<i data-lucide="eye" class="w-4 h-4"></i>`;
+            }
+            lucide.createIcons();
+        }
+
+        function confirmManualDelete(id, serviceName) {
+            deleteTargetId = id;
+            document.getElementById('deleteTargetName').innerText = serviceName;
+            document.getElementById('confirmDeleteBtn').onclick = executeManualDelete;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            deleteTargetId = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        function executeManualDelete() {
+            if (!deleteTargetId) return;
+            vaultPasswords = vaultPasswords.filter(p => p.id !== deleteTargetId);
+            saveVaultStorage();
+            renderVault();
+            closeDeleteModal();
+            showToast("O'chirildi", "trash-2");
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "Yangi Parol";
+            document.getElementById('editId').value = "";
+            document.getElementById('passForm').reset();
+            document.getElementById('passwordModal').classList.remove('hidden');
+        }
+
+        function openEditModal(id) {
+            const item = vaultPasswords.find(p => p.id === id);
+            if (!item) return;
+
+            document.getElementById('modalTitle').innerText = "Tahrirlash";
+            document.getElementById('editId').value = item.id;
+            document.getElementById('serviceInput').value = item.service;
+            document.getElementById('usernameInput').value = item.username;
+            document.getElementById('passwordInput').value = getDecodedPassword(item.password);
+            document.getElementById('categoryInput').value = item.category;
+
+            document.getElementById('passwordModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        }
+
+        function fillModalWithGenerated() {
+            document.getElementById('passwordInput').value = getSecureRandomPassword(16);
+        }
+
+        function saveVaultPassword(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editId').value;
+            const service = document.getElementById('serviceInput').value.trim();
+            const username = document.getElementById('usernameInput').value.trim();
+            const rawPassword = document.getElementById('passwordInput').value;
+            const category = document.getElementById('categoryInput').value;
+
+            const password = btoa(encodeURIComponent(rawPassword));
+
+            if (editId) {
+                vaultPasswords = vaultPasswords.map(p => {
+                    if (p.id === editId) {
+                        return { ...p, service, username, password, category, updatedAt: new Date().toISOString() };
+                    }
+                    return p;
+                });
+                showToast("Yangilandi", "check-circle");
+            } else {
+                const newItem = {
+                    id: 'pass_' + Date.now(),
+                    service,
+                    username,
+                    password,
+                    category,
+                    updatedAt: new Date().toISOString()
+                };
+                vaultPasswords.unshift(newItem);
+                showToast("Saqlandi", "shield-check");
+            }
+
+            saveVaultStorage();
+            renderVault();
+            closeModal();
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(vaultPasswords, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `vault_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dl);
+            dl.click();
+            dl.remove();
+            showToast("Yuklab olindi", "download");
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        vaultPasswords = imported;
+                        saveVaultStorage();
+                        renderVault();
+                        showToast("Tiklandi", "upload");
+                    }
+                } catch(err) {
+                    showToast("Xatolik", "alert-circle");
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function copyToClipboard(text) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Nusxalandi!", "copy");
+            }).catch(() => {
+                const temp = document.createElement("input");
+                document.body.appendChild(temp);
+                temp.value = text;
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+                showToast("Nusxalandi!", "copy");
+            });
+        }
+
+        function showToast(msg, iconName = "check-circle") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+            toastIcon.setAttribute('data-lucide', iconName);
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
